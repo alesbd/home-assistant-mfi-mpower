@@ -11,5 +11,6 @@
   "dependencies": [],
   "codeowners": ["@pasbec"],
   "iot_class": "local_polling",
-  "loggers": ["asyncssh", "mfi_mpower"]
+  "loggers": ["asyncssh", "mfi_mpower"],
+  "version": "1.0.0"
 }
