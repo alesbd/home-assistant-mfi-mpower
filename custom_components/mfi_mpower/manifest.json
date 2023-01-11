@@ -3,7 +3,7 @@
   "name": "Ubiquiti mFi mPower",
   "integration_type": "hub",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/mfi_mpower",
+  "documentation": "https://github.com/pasbec/mfi-mpower-hacs",
   "requirements": ["mfi-mpower==1.2.3"],
   "ssdp": [],
   "zeroconf": [],
