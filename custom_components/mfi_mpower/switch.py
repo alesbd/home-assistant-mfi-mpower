@@ -3,11 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.components.switch import (
-    PLATFORM_SCHEMA,
-    SwitchDeviceClass,
-    SwitchEntity,
-)
+from homeassistant.components import switch
+from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import PlatformNotReady
@@ -19,7 +16,7 @@ from .config_flow import create_schema
 from .const import DOMAIN
 from .update_coordinator import MPowerCoordinatorEntity, MPowerDataUpdateCoordinator
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(create_schema().schema)
+PLATFORM_SCHEMA = switch.PLATFORM_SCHEMA.extend(create_schema().schema)
 
 
 async def async_setup_platform(
@@ -60,7 +57,7 @@ async def async_create_entities(
         MPowerSwitchEntity(e, coordinator) for e in api_entities
     ]
 
-    return [e for e in entities if not e.skip]
+    return entities
 
 
 class MPowerSwitchEntity(MPowerCoordinatorEntity, SwitchEntity):
@@ -68,7 +65,10 @@ class MPowerSwitchEntity(MPowerCoordinatorEntity, SwitchEntity):
 
     api_entity: api.MPowerSwitch
 
+    domain: str = switch.DOMAIN
+
     _attr_device_class = SwitchDeviceClass.OUTLET
+    _attr_name = "Output"
 
     @property
     def available(self) -> bool:
@@ -81,11 +81,6 @@ class MPowerSwitchEntity(MPowerCoordinatorEntity, SwitchEntity):
     def unique_id(self) -> str:
         """Return the unique id of the switch."""
         return f"{self.api_entity.unique_id}-switch"
-
-    @property
-    def name(self) -> str:
-        """Return the name of the switch."""
-        return "Output"
 
     @property
     def icon(self) -> str | None:

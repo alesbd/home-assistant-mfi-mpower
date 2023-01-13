@@ -56,8 +56,12 @@ async def async_remove_config_entry_device(
     entity_registry = er.async_get(hass)
     entity_device_ids = {entry.device_id for entry in entity_registry.entities.values()}
 
-    # Allow removal of orphaned devices
+    # Allow only removal of orphaned port devices
     if device_id not in entity_device_ids:
+        return True
+
+    # Allow removal of port devices
+    if device_entry.via_device_id is not None:
         return True
 
     return False

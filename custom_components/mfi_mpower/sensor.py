@@ -1,11 +1,8 @@
 """Support for Ubiquiti mFi mPower sensors."""
 from __future__ import annotations
 
-from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA,
-    SensorDeviceClass,
-    SensorEntity,
-)
+from homeassistant.components import sensor
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
@@ -23,7 +20,7 @@ from .config_flow import create_schema
 from .const import DOMAIN
 from .update_coordinator import MPowerCoordinatorEntity, MPowerDataUpdateCoordinator
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(create_schema().schema)
+PLATFORM_SCHEMA = sensor.PLATFORM_SCHEMA.extend(create_schema().schema)
 
 
 async def async_setup_platform(
@@ -67,11 +64,13 @@ async def async_create_entities(
         *[MPowerPowerFactorSensorEntity(e, coordinator) for e in api_entities],
     ]
 
-    return [e for e in entities if not e.skip]
+    return entities
 
 
 class MPowerSensorEntity(MPowerCoordinatorEntity, SensorEntity):
     """Coordinated sensor entity for Ubiquiti mFi mPower sensors."""
+
+    domain: str = sensor.DOMAIN
 
 
 class MPowerPowerSensorEntity(MPowerSensorEntity):
@@ -80,16 +79,12 @@ class MPowerPowerSensorEntity(MPowerSensorEntity):
     api_entity: api.MPowerSensor
 
     _attr_device_class = SensorDeviceClass.POWER
+    _attr_name = "Power"
 
     @property
     def unique_id(self) -> str:
         """Return the unique id of the sensor."""
         return f"{self.api_entity.unique_id}-power"
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Power"
 
     @property
     def native_value(self) -> float:
@@ -108,16 +103,12 @@ class MPowerCurrentSensorEntity(MPowerSensorEntity):
     api_entity: api.MPowerSensor
 
     _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_name = "Current"
 
     @property
     def unique_id(self) -> str:
         """Return the unique id of the sensor."""
         return f"{self.api_entity.unique_id}-current"
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Current"
 
     @property
     def native_value(self) -> float:
@@ -136,16 +127,12 @@ class MPowerVoltageSensorEntity(MPowerSensorEntity):
     api_entity: api.MPowerSensor
 
     _attr_device_class = SensorDeviceClass.VOLTAGE
+    _attr_name = "Voltage"
 
     @property
     def unique_id(self) -> str:
         """Return the unique id of the sensor."""
         return f"{self.api_entity.unique_id}-voltage"
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Voltage"
 
     @property
     def native_value(self) -> float:
@@ -164,16 +151,12 @@ class MPowerPowerFactorSensorEntity(MPowerSensorEntity):
     api_entity: api.MPowerSensor
 
     _attr_device_class = SensorDeviceClass.POWER_FACTOR
+    _attr_name = "Power factor"
 
     @property
     def unique_id(self) -> str:
         """Return the unique id of the sensor."""
         return f"{self.api_entity.unique_id}-powerfactor"
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Power factor"
 
     @property
     def native_value(self) -> float:

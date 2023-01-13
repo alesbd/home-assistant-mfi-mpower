@@ -6,9 +6,9 @@ from datetime import timedelta
 import logging
 
 import async_timeout
-
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.entity import SLOW_UPDATE_WARNING, DeviceInfo
 from homeassistant.helpers.entity_platform import SLOW_SETUP_MAX_WAIT
 from homeassistant.helpers.update_coordinator import (
@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
+from homeassistant.util import slugify
 
 from . import api
 from .const import DOMAIN, NAME
@@ -66,6 +67,8 @@ class MPowerCoordinatorEntity(CoordinatorEntity):
     api_entity: api.MPowerEntity
     api_device: api.MPowerDevice
 
+    domain: str | None = None
+
     _attr_assumed_state = False
     _attr_has_entity_name = True
 
@@ -75,38 +78,64 @@ class MPowerCoordinatorEntity(CoordinatorEntity):
         """Initialize the entity."""
         self.api_entity = api_entity
         self.api_device = api_entity.device
+        self.api_label = None
+
         super().__init__(coordinator)
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         data = self.coordinator.data
+
         if data is not None:
             self.api_entity.data = data[self.api_entity.port - 1]
+
+            # Check if api entity label has changed
+            if self.api_entity.label != self.api_label:
+                # Adjust device name
+                device_registry = dr.async_get(self.hass)
+                device_registry.async_update_device(
+                    self.registry_entry.device_id,
+                    name=self.device_name,
+                )
+
+                # Adjust entity id
+                assert self.domain is not None
+                entity_registry = er.async_get(self.hass)
+                new_object_id = slugify(f"{self.device_name} {self.name}")
+                try:
+                    new_entity_id = f"{self.domain}.{new_object_id}"
+                    entity_registry.async_update_entity(
+                        self.entity_id,
+                        new_entity_id=new_entity_id,
+                    )
+                except ValueError:
+                    new_entity_id = entity_registry.async_generate_entity_id(
+                        self.domain, new_object_id
+                    )
+                    entity_registry.async_update_entity(
+                        self.entity_id,
+                        new_entity_id=new_entity_id,
+                    )
+
+                # Update api label
+                self.api_label = self.api_entity.label
+
             self.async_write_ha_state()
 
     @property
-    def skip(self) -> bool:
-        """Indicate whether adding of this entity should be skipped."""
-
-        # Skip devices without unique id (for whatever reason)
-        if not self.api_device.unique_id:
-            return True
-
-        # Skip entities with empty label
-        if not self.api_entity.label:
-            return True
-
-        return False
+    def device_name(self) -> str:
+        """Return the device name of the entity."""
+        if self.api_entity.label:
+            return self.api_entity.label
+        return f"{self.api_device.name} port {self.api_entity.port}"
 
     @property
     def device_info(self) -> DeviceInfo | None:
-        """Return the device info."""
-        if self.skip:
-            return None
+        """Return the device info for this entity."""
         return DeviceInfo(
             identifiers={(DOMAIN, self.api_entity.unique_id)},
-            name=self.api_entity.label,
+            name=self.device_name,
             manufacturer=self.api_device.manufacturer,
             model=f"{self.api_device.model} Port {self.api_entity.port}",
             via_device=(DOMAIN, self.api_device.unique_id),
