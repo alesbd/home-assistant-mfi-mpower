@@ -14,6 +14,8 @@ DOMAIN = "mfi_mpower"
 
 NAME = "Ubiquiti mFi mPower"
 
+DEFAULT_TIMEOUT = 15
+
 DEFAULTS = {
     CONF_HOST: None,
     CONF_USERNAME: "ubnt",

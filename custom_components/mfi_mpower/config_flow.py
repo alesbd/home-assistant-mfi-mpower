@@ -20,10 +20,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import SLOW_UPDATE_WARNING
 
 from . import api
-from .const import DEFAULTS, DOMAIN
+from .const import DEFAULT_TIMEOUT, DEFAULTS, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +54,7 @@ def create_schema(data=None, conf: tuple | list | None = None):
             default=data.get(CONF_SCAN_INTERVAL, DEFAULTS[CONF_SCAN_INTERVAL]),
         ): selector.NumberSelector(
             selector.NumberSelectorConfig(
-                min=SLOW_UPDATE_WARNING,
+                min=DEFAULT_TIMEOUT,
                 mode=selector.NumberSelectorMode.BOX,
                 unit_of_measurement="seconds",
             ),

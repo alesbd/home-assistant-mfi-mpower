@@ -9,7 +9,7 @@ import async_timeout
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import device_registry as dr, entity_registry as er
-from homeassistant.helpers.entity import SLOW_UPDATE_WARNING, DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import SLOW_SETUP_MAX_WAIT
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -19,7 +19,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.util import slugify
 
 from . import api
-from .const import DOMAIN, NAME
+from .const import DEFAULT_TIMEOUT, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class MPowerDataUpdateCoordinator(DataUpdateCoordinator):
         """Fetch data from the device."""
         try:
             updated = self.api_device.updated
-            timeout = SLOW_UPDATE_WARNING if updated else SLOW_SETUP_MAX_WAIT
+            timeout = DEFAULT_TIMEOUT if updated else SLOW_SETUP_MAX_WAIT
             async with async_timeout.timeout(timeout):
                 await api.update_device(self.api_device)
         except asyncio.TimeoutError as exc:
