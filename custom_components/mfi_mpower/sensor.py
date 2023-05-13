@@ -89,7 +89,7 @@ class MPowerPowerSensorEntity(MPowerSensorEntity):
     @property
     def native_value(self) -> float:
         """Return the native value of the sensor."""
-        return self.api_entity.power
+        return round(self.api_entity.power, 2)
 
     @property
     def native_unit_of_measurement(self) -> str:
@@ -113,7 +113,7 @@ class MPowerCurrentSensorEntity(MPowerSensorEntity):
     @property
     def native_value(self) -> float:
         """Return the native value of the sensor."""
-        return self.api_entity.current
+        return round(self.api_entity.current, 3)
 
     @property
     def native_unit_of_measurement(self) -> str:
@@ -137,7 +137,7 @@ class MPowerVoltageSensorEntity(MPowerSensorEntity):
     @property
     def native_value(self) -> float:
         """Return the native value of the sensor."""
-        return self.api_entity.voltage
+        return round(self.api_entity.voltage, 2)
 
     @property
     def native_unit_of_measurement(self) -> str:
@@ -161,7 +161,7 @@ class MPowerPowerFactorSensorEntity(MPowerSensorEntity):
     @property
     def native_value(self) -> float:
         """Return the native value of the sensor."""
-        return self.api_entity.powerfactor
+        return round(self.api_entity.powerfactor, 3)
 
     @property
     def native_unit_of_measurement(self) -> str:
