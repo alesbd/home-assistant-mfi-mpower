@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components import sensor
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
@@ -79,6 +79,7 @@ class MPowerPowerSensorEntity(MPowerSensorEntity):
     api_entity: api.MPowerSensor
 
     _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class=SensorStateClass.MEASUREMENT
     _attr_name = "Power"
 
     @property
